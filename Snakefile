@@ -21,7 +21,10 @@ rule all:
 
       """
 
-rule haplotypeCaller:
+
+
+
+rule genotypeGVCFs:
     input:
       ...
     output:
@@ -33,6 +36,38 @@ rule haplotypeCaller:
     shell:
       """
 
+      """
+
+
+rule haplotypeCaller:
+    input:
+      bam = os.path.join(
+          "out",
+          "bam",
+          "{sample}",
+          "{sample}_Aligned.sortedByCoord.dupMarked.split.bsqr.out.bam"
+          )
+    output:
+      os.path.join(
+          "out",
+          "haploCaller",
+          "sample",
+          "{sample_unfiltered.gvcf}"
+          )
+    params:
+      ref = "ref.ref",
+      reg = "XYZ.vcf",
+      extraArgs = "config.xxxtra" ### obv fix this
+    conda:
+      "env/gatk.yaml"
+    log:
+      "logs/haploCall/{sample}.log"
+    shell:
+      """
+      gatk -T HaplotypeCaller -R {params.ref} -I {input.bam} \
+      -dontUseSoftClippedBases -stand_call_conf 20.0 \
+      -stand_emit_conf 20.0 -ERC GVCF \
+      --arguments_file {params.extraArgs} -o {output}
       """
 
 
@@ -51,7 +86,7 @@ rule printBsqr:
         "bam",
         "{sample}",
         "{sample}_Aligned.sortedByCoord.dupMarked.split.bsqr.out.bam"
-    )
+        )
     conda:
       "env/gatk.yaml"
     log:
@@ -71,7 +106,11 @@ rule bsqr:
           "{sample}_Aligned.sortedByCoord.dupMarked.split.out.bam"
           )
     output:
-      "out/bsqr/{sample}_recal.table"
+      os.path.join(
+        "out",
+        "bsqr",
+        "{sample}_recal.table"
+        )
     params:
       ref = "",
       KGIndels = "",
