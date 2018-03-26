@@ -1,7 +1,7 @@
-name: STAR
+name: samtools
 
 channels:
   - bioconda
 
 dependencies:
-  - star
+  - samtools

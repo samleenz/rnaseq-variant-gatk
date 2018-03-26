@@ -1,7 +1,7 @@
-name: STAR
+name: picard
 
 channels:
   - bioconda
 
 dependencies:
-  - star
+  - picard
