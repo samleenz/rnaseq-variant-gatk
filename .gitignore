@@ -1,3 +1,4 @@
 no-copy
 .DS_store
 .vscode
+rna_seq_variant_pipeline.sh

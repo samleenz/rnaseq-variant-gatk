@@ -1,0 +1,7 @@
+name: GATK
+
+channels:
+  - bioconda
+
+dependencies:
+  - gatk
