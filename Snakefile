@@ -6,36 +6,104 @@ from os.path import join
 import re
 #
 
+# Path to GATK executable
+gatk = "/home/samlee/downloads/gatk-4.0.2.1/gatk"
+
+# List of "{sample}.g.vcf.gz"
+# used for rule "combineGVCFs"
+
+gvcfLst = expand(
+    os.path.join(
+      "out",
+      "haploCaller",
+      "{sample}",
+      "{sample}.g.vcf.gz" 
+      ),
+    sample=config["samples"]
+    )
 
 rule all:
     input:
-      ...
+      os.path.join(
+        "out",
+        "haplocaller",
+        "all_samples.genotyped.filtered.vcf.gz"
+        )   
+
+
+rule filterVCF:
+    input:
+      os.path.join(
+          "out",
+          "haplocaller",
+          "all_samples.genotyped.vcf.gz"
+      )
     output:
-      ...
+      os.path.join(
+          "out",
+          "haplocaller",
+          "all_samples.genotyped.filtered.vcf.gz"
+      )
+    params:
+      ref = "ref.ref"
     conda:
-      "env/AAA.yaml"
+      "env/gatk.yaml"
     log:
-      "logs/AAA/{sample}.log"
+      "logs/haploCaller/filterVariants.log"
     shell:
       """
-
+      gatk -T VariantFiltration -R {params.ref} -V {input} \
+        -window 35 -cluster 3 -filterName FS -filter "FS > 30.0" \
+        -filterName QD -filter "QD < 2.0" -o {output} 
       """
-
-
 
 
 rule genotypeGVCFs:
     input:
-      ...
+      os.path.join(
+          "out",
+          "haplocaller",
+          "all_samples.g.vcf.gz"
+      )
     output:
-      ...
+      os.path.join(
+          "out",
+          "haplocaller",
+          "all_samples.genotyped.vcf.gz"
+      )
+    params:
+      ref = "ref.ref"
     conda:
       "env/AAA.yaml"
     log:
       "logs/AAA/{sample}.log"
     shell:
       """
+      gatk -T GenotypeGVCFs -R {params.ref} \
+        --variant {input} -o {output}
+      """
 
+
+rule combineGVCFs:
+    input:
+      gvcfLst
+    output:
+      os.path.join(
+          "out",
+          "haplocaller",
+          "all_samples.g.vcf.gz"
+      )
+    params:
+      lst = lambda wildcards : " --variant ".join(gvcfLst),
+      ref = "ref.ref",
+    conda:
+      "env/gatk.yaml"
+    log:
+      "logs/haploCall/combineGVCF.log"
+    shell:
+      """
+      gatk -T CombineGVCFs -R {params.ref} \
+        --variant {params.lst} -o {output}
       """
 
 
@@ -51,8 +119,8 @@ rule haplotypeCaller:
       os.path.join(
           "out",
           "haploCaller",
-          "sample",
-          "{sample_unfiltered.gvcf}"
+          "{sample}",
+          "{sample}.g.vcf.gz"
           )
     params:
       ref = "ref.ref",
