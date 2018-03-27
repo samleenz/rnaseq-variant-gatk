@@ -1,17 +1,25 @@
 # 2018-03-26
 # Sam Lee
+# Snakefile for rnaseq-variant-gatk pipeline
 
-configfile: "config.yaml"
 from os.path import join
 import re
-#
+
+# Import config file for conda options
+configfile: "config.yaml"
+## extract resource variables
+star_ref    = config["star_ref"]
+ref         = config["ref"]
+KGsnps      = config["KGsnps"]
+millsIndels = config["millsIndels"]
+dbSNP       = config["dbSNP"]
+hcArgs      = confg ["hcArgs"]
 
 # Path to GATK executable
 gatk = "/home/samlee/downloads/gatk-4.0.2.1/gatk"
 
 # List of "{sample}.g.vcf.gz"
 # used for rule "combineGVCFs"
-
 gvcfLst = expand(
     os.path.join(
       "out",
@@ -21,6 +29,10 @@ gvcfLst = expand(
       ),
     sample=config["samples"]
     )
+
+####################
+# Rule definitions
+####################
 
 rule all:
     input:
@@ -45,14 +57,12 @@ rule filterVCF:
           "all_samples.genotyped.filtered.vcf.gz"
       )
     params:
-      ref = "ref.ref"
-    conda:
-      # "env/gatk.yaml"
+      ref = ref
     log:
       "logs/haploCaller/filterVariants.log"
     shell:
       """
-      gatk -T VariantFiltration -R {params.ref} -V {input} \
+      {gatk} -T VariantFiltration -R {params.ref} -V {input} \
         -window 35 -cluster 3 -filterName FS -filter "FS > 30.0" \
         -filterName QD -filter "QD < 2.0" -o {output} 2> {log}
       """
@@ -72,9 +82,7 @@ rule genotypeGVCFs:
           "all_samples.genotyped.vcf.gz"
       )
     params:
-      ref = "ref.ref"
-    conda:
-    #   "env/gatk.yaml"
+      ref = ref
     log:
       "logs/genotypeGVCF/{sample}.log"
     shell:
@@ -95,9 +103,7 @@ rule combineGVCFs:
       )
     params:
       lst = lambda wildcards : " --variant ".join(gvcfLst),
-      ref = "ref.ref",
-    # conda:
-      # "env/gatk.yaml"
+      ref = ref
     log:
       "logs/haploCall/combineGVCF.log"
     shell:
@@ -123,11 +129,8 @@ rule haplotypeCaller:
           "{sample}.g.vcf.gz"
           )
     params:
-      ref = "ref.ref",
-      reg = "XYZ.vcf",
-      extraArgs = "config.xxxtra" ### obv fix this
-    # conda:
-      # "env/gatk.yaml"
+      ref = ref
+      hcArgs = hcArgs
     log:
       "logs/haploCall/{sample}.log"
     shell:
@@ -135,7 +138,7 @@ rule haplotypeCaller:
       {gatk} -T HaplotypeCaller -R {params.ref} -I {input.bam} \
       -dontUseSoftClippedBases -stand_call_conf 20.0 \
       -stand_emit_conf 20.0 -ERC GVCF \
-      --arguments_file {params.extraArgs} -o {output} 2> {log}
+      {params.hcArgs} -o {output} 2> {log}
       """
 
 
@@ -155,13 +158,14 @@ rule printBsqr:
         "{sample}",
         "{sample}_Aligned.sortedByCoord.dupMarked.split.bsqr.out.bam"
         )
-    # conda:
-      # "env/gatk.yaml"
+    params:
+      ref = ref
     log:
       "logs/printBsqr/{sample}.log"
     shell:
       """
-      java -d64 -jar ${gatk} -T PrintReads -R $ref -I $opdir/$bn"_processed.bam" -nct 50 -BQSR $opdir/$bn"_recal.table" -o {output} 2> {log}
+      {gatk} -T PrintReads -R {params.ref} -I {input.bam} \
+       -nct 50 -BQSR {input.table} -o {output} 2> {log}
       """
 
 
@@ -180,18 +184,16 @@ rule bsqr:
         "{sample}_recal.table"
         )
     params:
-      ref = "",
-      KGIndels = "",
-      millsIndels = "",
-      dbSNP = ""
-    # conda:
-      # "env/gatk.yaml"
+      ref = ref,
+      KGsnps = KGsnps,
+      millsIndels = millsIndels,
+      dbSNP = dbSNP
     log:
       "logs/bsqr/{sample}.log"
     shell:
       """
       {gatk} -T BaseRecalibrator -I {input} -R {param.ref} \
-      -knownSites {params.KGIndels} -knownSites {params.millsIndels} \
+      -knownSites {params.KGsnps} -knownSites {params.millsIndels} \
       -knownSites {params.dbSNP} -o {output} 2> {log}
       """
 
@@ -212,14 +214,15 @@ rule splitNcigar:
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.split.out.bam"
           )
-    # conda:
-      # "env/gatk.yaml"
+    params:
+      ref = ref
     log:
       "logs/splitNcigar/{sample}.log"
     shell:
       """
-      {gatk} -T SplitNCigarReads -R {input.ref} -I {input.bam} \
-      -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 -U ALLOW_N_CIGAR_READS 2> {log}
+      {gatk} -T SplitNCigarReads -R {params.ref} -I {input.bam} \
+      -rf ReassignOneMappingQuality -RMQF 255 \
+      -RMQT 60 -U ALLOW_N_CIGAR_READS 2> {log}
       """
 
 
@@ -245,13 +248,20 @@ rule markDuplicates:
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.out.bam"
           )
+    params:
+      metrics = os.path.join(
+          "out",
+          "picard-tools-marked-dup-metrics.txt"
+          )
     conda:
       "env/picard.yaml"
     log:
       "logs/markDuplicates/{sample}.log"
     shell:
       """
-      picard MarkDuplicates I={input.bam} O={output} M=$opdir/$bn"_dup.metrics" CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT 2> {log}
+      picard MarkDuplicates I={input.bam} O={output} \
+      M={params.metrics} CREATE_INDEX=true \
+      VALIDATION_STRINGENCY=SILENT 2> {log}
       """
 
 
@@ -293,12 +303,12 @@ rule alignReads:
           )
     params:
       prefix  = "star/{sample}/{sample}_",
-      starRef = "{config.star_ref}" ##### CHECK THIS
+      starRef = star_ref
     conda:
       "env/star.yaml"
     log:
       "logs/alignReads/{sample}.log"
-    threads: 99
+    threads: 8 # this is arbitrary...
     shell:
       """
       STAR --twopassMode Basic --genomeDir {params.starRef} \
