@@ -4,3 +4,4 @@ no-copy
 rna_seq_variant_pipeline.sh
 Snakefile.test
 .snakemake
+test.txt
