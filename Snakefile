@@ -13,7 +13,7 @@ ref         = config["ref"]
 KGsnps      = config["KGsnps"]
 millsIndels = config["millsIndels"]
 dbSNP       = config["dbSNP"]
-hcArgs      = confg ["hcArgs"]
+hcArgs      = config ["hcArgs"]
 
 # Path to GATK executable
 gatk = "/home/samlee/downloads/gatk-4.0.2.1/gatk"
