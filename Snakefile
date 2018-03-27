@@ -303,7 +303,8 @@ rule alignReads:
           )
     params:
       prefix  = "star/{sample}/{sample}_",
-      starRef = star_ref
+      starRef = star_ref,
+      rg = "ID:{sample} SM:{sample}"
     conda:
       "env/star.yaml"
     log:
@@ -312,8 +313,8 @@ rule alignReads:
     shell:
       """
       STAR --twopassMode Basic --genomeDir {params.starRef} \
-      --readFilesIn {input.fq1} {input.fq2} \
-      --readFilesCommand zcat --outFileNamePrefix {params.prefix}  \
-      --outSAMtype BAM SortedByCoordinate --runThreadN {threads} 2> {log}
+      --readFilesIn {input.fq1} {input.fq2} --readFilesCommand zcat \
+      --outFileNamePrefix {params.prefix} --outSAMtype BAM SortedByCoordinate \
+      SortedByCoordinate {params.rg} --runThreadN {threads} 2> {log}
       """
       
