@@ -47,14 +47,14 @@ rule filterVCF:
     params:
       ref = "ref.ref"
     conda:
-      "env/gatk.yaml"
+      # "env/gatk.yaml"
     log:
       "logs/haploCaller/filterVariants.log"
     shell:
       """
       gatk -T VariantFiltration -R {params.ref} -V {input} \
         -window 35 -cluster 3 -filterName FS -filter "FS > 30.0" \
-        -filterName QD -filter "QD < 2.0" -o {output} 
+        -filterName QD -filter "QD < 2.0" -o {output} 2> {log}
       """
 
 
@@ -74,13 +74,13 @@ rule genotypeGVCFs:
     params:
       ref = "ref.ref"
     conda:
-      "env/AAA.yaml"
+    #   "env/gatk.yaml"
     log:
-      "logs/AAA/{sample}.log"
+      "logs/genotypeGVCF/{sample}.log"
     shell:
       """
-      gatk -T GenotypeGVCFs -R {params.ref} \
-        --variant {input} -o {output}
+      {gatk} -T GenotypeGVCFs -R {params.ref} \
+        --variant {input} -o {output} 2> {log}
       """
 
 
@@ -96,14 +96,14 @@ rule combineGVCFs:
     params:
       lst = lambda wildcards : " --variant ".join(gvcfLst),
       ref = "ref.ref",
-    conda:
-      "env/gatk.yaml"
+    # conda:
+      # "env/gatk.yaml"
     log:
       "logs/haploCall/combineGVCF.log"
     shell:
       """
-      gatk -T CombineGVCFs -R {params.ref} \
-        --variant {params.lst} -o {output}
+      {gatk} -T CombineGVCFs -R {params.ref} \
+        --variant {params.lst} -o {output} 2> {log}
       """
 
 
@@ -126,16 +126,16 @@ rule haplotypeCaller:
       ref = "ref.ref",
       reg = "XYZ.vcf",
       extraArgs = "config.xxxtra" ### obv fix this
-    conda:
-      "env/gatk.yaml"
+    # conda:
+      # "env/gatk.yaml"
     log:
       "logs/haploCall/{sample}.log"
     shell:
       """
-      gatk -T HaplotypeCaller -R {params.ref} -I {input.bam} \
+      {gatk} -T HaplotypeCaller -R {params.ref} -I {input.bam} \
       -dontUseSoftClippedBases -stand_call_conf 20.0 \
       -stand_emit_conf 20.0 -ERC GVCF \
-      --arguments_file {params.extraArgs} -o {output}
+      --arguments_file {params.extraArgs} -o {output} 2> {log}
       """
 
 
@@ -155,13 +155,13 @@ rule printBsqr:
         "{sample}",
         "{sample}_Aligned.sortedByCoord.dupMarked.split.bsqr.out.bam"
         )
-    conda:
-      "env/gatk.yaml"
+    # conda:
+      # "env/gatk.yaml"
     log:
       "logs/printBsqr/{sample}.log"
     shell:
       """
-      java -d64 -jar $gatk -T PrintReads -R $ref -I $opdir/$bn"_processed.bam" -nct 50 -BQSR $opdir/$bn"_recal.table" -o {output}
+      java -d64 -jar ${gatk} -T PrintReads -R $ref -I $opdir/$bn"_processed.bam" -nct 50 -BQSR $opdir/$bn"_recal.table" -o {output} 2> {log}
       """
 
 
@@ -184,15 +184,15 @@ rule bsqr:
       KGIndels = "",
       millsIndels = "",
       dbSNP = ""
-    conda:
-      "env/gatk.yaml"
+    # conda:
+      # "env/gatk.yaml"
     log:
       "logs/bsqr/{sample}.log"
     shell:
       """
-      gatk -T BaseRecalibrator -I {input} -R {param.ref} \
+      {gatk} -T BaseRecalibrator -I {input} -R {param.ref} \
       -knownSites {params.KGIndels} -knownSites {params.millsIndels} \
-      -knownSites {params.dbSNP} -o {output}
+      -knownSites {params.dbSNP} -o {output} 2> {log}
       """
 
 
@@ -212,14 +212,14 @@ rule splitNcigar:
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.split.out.bam"
           )
-    conda:
-      "env/gatk.yaml"
+    # conda:
+      # "env/gatk.yaml"
     log:
       "logs/splitNcigar/{sample}.log"
     shell:
       """
-      gatk -T SplitNCigarReads -R {input.ref} -I {input.bam} \
-      -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 -U ALLOW_N_CIGAR_READS
+      {gatk} -T SplitNCigarReads -R {input.ref} -I {input.bam} \
+      -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 -U ALLOW_N_CIGAR_READS 2> {log}
       """
 
 
@@ -251,7 +251,7 @@ rule markDuplicates:
       "logs/markDuplicates/{sample}.log"
     shell:
       """
-      MarkDuplicates I={input.bam} O={output} M=$opdir/$bn"_dup.metrics" CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT 
+      picard MarkDuplicates I={input.bam} O={output} M=$opdir/$bn"_dup.metrics" CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT 2> {log}
       """
 
 
@@ -276,7 +276,7 @@ rule indexReads:
       "logs/indexReads/{sample}.log"
     shell:
       """
-      samtools index -b {input}
+      samtools index -b {input} 2> {log}
       """
 
 
@@ -304,6 +304,6 @@ rule alignReads:
       STAR --twopassMode Basic --genomeDir {params.starRef} \
       --readFilesIn {input.fq1} {input.fq2} \
       --readFilesCommand zcat --outFileNamePrefix {params.prefix}  \
-      --outSAMtype BAM SortedByCoordinate --runThreadN {threads}
+      --outSAMtype BAM SortedByCoordinate --runThreadN {threads} 2> {log}
       """
       
