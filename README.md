@@ -26,7 +26,7 @@ hcArgs: "-L my_variants.vcf -ip 100"
 
 ### To do
 
-* Test that calls work with GATK 4
+* Fix GATK 4 calls so it works - is this a bug or implementation issues?
 
 
 ### Build process for GATK 4 conda environment
