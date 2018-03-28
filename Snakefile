@@ -18,6 +18,8 @@ hcArgs      = config["hcArgs"]
 gatk        = config["gatkPath"]
 ## output directory name
 outDir      = config["outDir"]
+## fastq file directory 
+fastqDir    = config["fastqDir"]
 
 # List of "{sample}.g.vcf.gz"
 # used for rule "combineGVCFs"
@@ -293,8 +295,14 @@ rule indexReads:
 
 rule alignReads:
     input:
-      fq1 = "{sample}_1_trimmed.fastq.gz",
-      fq2 = "{sample}_2_trimmed.fastq.gz"
+      fq1 = os.path.join(
+          fastqDir,
+          "{sample}_1_trimmed.fastq.gz",
+          ),
+      fq2 = os.path.join(
+          fastqDir,
+          "{sample}_2_trimmed.fastq.gz",
+          ),
     output:
       os.path.join(
           outDir, 

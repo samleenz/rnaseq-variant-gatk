@@ -12,6 +12,8 @@ gatkPath: "/path/to/the/git/gatk-4.0.2.1/gatk"
 
 # output directory name
 outDir: "out"
+# fastq directory name, default is current dir
+outDir: "."
 
 # additional arguments to HaplotypeCaller
 ## if you have none to add just make it a blank string
