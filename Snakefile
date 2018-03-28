@@ -21,6 +21,10 @@ outDir      = config["outDir"]
 ## fastq file directory 
 fastqDir    = config["fastqDir"]
 
+
+## get log directory name from output dir name
+logs = outDir.replace("out", "logs")
+
 # List of "{sample}.g.vcf.gz"
 # used for rule "combineGVCFs"
 gvcfLst = expand(
@@ -62,7 +66,11 @@ rule filterVCF:
     params:
       ref = ref
     log:
-      "logs/haploCaller/filterVariants.log"
+      os.path.join(
+          logs,
+          "haploCall",
+          "filterVariants.log"
+      )
     shell:
       """
       {gatk} -T  VariantFiltration -R {params.ref} -V {input} \
@@ -87,7 +95,11 @@ rule genotypeGVCFs:
     params:
       ref = ref
     log:
-      "logs/haploCall/genotypeGVCFs.log"
+      os.path.join(
+          logs,
+          "haploCall",
+          "genotypeGVCFs.log"
+      )
     shell:
       """
       {gatk} -T  GenotypeGVCFs -R {params.ref} \
@@ -108,7 +120,11 @@ rule combineGVCFs:
       lst = lambda wildcards : " --variant ".join(gvcfLst),
       ref = ref
     log:
-      "logs/haploCall/combineGVCF.log"
+      os.path.join(
+          logs,
+          "haploCall",
+          "combineGVCF.log"
+      )
     shell:
       """
       {gatk} -T  CombineGVCFs -R {params.ref} \
@@ -135,7 +151,11 @@ rule haplotypeCaller:
       ref = ref,
       hcArgs = hcArgs
     log:
-      "logs/haploCall/{sample}.log"
+      os.path.join(
+          logs,
+          "haploCall",
+          "{sample}.log"
+      )
     shell:
       """
       {gatk} -T  HaplotypeCaller -R {params.ref} -I {input.bam} \
@@ -167,7 +187,11 @@ rule printBsqr:
     params:
       ref = ref
     log:
-      "logs/printBsqr/{sample}.log"
+      os.path.join(
+          logs,
+          "printBsqr",
+          "{sample}.log"
+      )
     shell:
       """
       {gatk} -T  PrintReads -R {params.ref} -I {input.bam} \
@@ -195,7 +219,11 @@ rule bsqr:
       millsIndels = millsIndels,
       dbSNP = dbSNP
     log:
-      "logs/bsqr/{sample}.log"
+      os.path.join(
+          logs,
+          "bsqr",
+          "{sample}.log"
+      )
     shell:
       """
       {gatk} -T  BaseRecalibrator -I {input} -R {params.ref} \
@@ -225,7 +253,11 @@ rule splitNcigar:
     params:
       ref = ref
     log:
-      "logs/splitNcigar/{sample}.log"
+      os.path.join(
+          logs,
+          "splitNcigar",
+          "{sample}.log"
+      )
     shell:
       """
       {gatk} -Xmx4G -T  SplitNCigarReads -R {params.ref} \
@@ -264,7 +296,11 @@ rule markDuplicates:
     conda:
       "env/picard.yaml"
     log:
-      "logs/markDuplicates/{sample}.log"
+      os.path.join(
+          logs,
+          "markDuplicates",
+          "{sample}.log"
+      )
     shell:
       """
       picard MarkDuplicates I={input.bam} O={output} \
@@ -279,7 +315,13 @@ rule markDuplicates:
 #     output:
 #       ref.replace(".fa", ".dict")
 #     conda:
-#       "env/picard.yaml"
+ #       "env/picard.yaml"
+#       log:
+#         os.path.join(
+#           logs,
+#           "makeRefDict",
+#           "makeRefDict.log"
+#       )
 #     shell:
 #       """
 #       picard CreateSequenceDictionary R={input} O={output}
@@ -293,10 +335,16 @@ rule markDuplicates:
 #       ref.replace(".fa", "fa.fai")
 #     conda:
 #       "env/samtools.yaml"
+#     log:
+#       os.path.join(
+#         logs,
+#         "indexRef",
+#         "indexRef.log"
+#       )
 #     shell:
 #       """
 #       samtools faidx {input}
-      # """
+#       """
 
 
 rule indexReads:
@@ -317,7 +365,11 @@ rule indexReads:
     conda:
       "env/samtools.yaml"
     log:
-      "logs/indexReads/{sample}.log"
+      os.path.join(
+          logs,
+          "indexReads",
+          "{sample}.log"
+      )
     shell:
       """
       samtools index -b {input} 2> {log}
@@ -351,7 +403,11 @@ rule alignReads:
     conda:
       "env/star.yaml"
     log:
-      "logs/alignReads/{sample}.log"
+      os.path.join(
+          logs,
+          "alignReads",
+          "{sample}.log"
+      )
     threads: 8 # this is arbitrary...
     shell:
       """
