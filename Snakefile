@@ -151,7 +151,7 @@ rule printBsqr:
           ),
       table = "out/bsqr/{sample}_recal.table"
     output:
-    temp(os.path.join(
+      temp(os.path.join(
         "out",
         "bam",
         "{sample}",
