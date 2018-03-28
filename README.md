@@ -13,6 +13,12 @@ snakemake --dag | dot -Tpng > "XXX-worflow.png"
 snakemake --use-conda --configfile "XXX-config.yaml"
 ```
 
+Additional parameters can be passed to the Haplotype caller step by way of the `hcArgs` variable in the config file. For example to restrict genotyping to specific positions on the genome we would add the following line to the config file. (ip provides padding arond each site, recommended by GATK site.)
+
+```
+hcArgs: "-L my_variants.vcf -ip 100"
+```
+
 ### To do
 
 * Test that calls work with GATK 4
