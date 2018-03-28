@@ -277,7 +277,7 @@ rule markDuplicates:
 #     input:
 #       ref
 #     output:
-#       ref.replace(".fasta", ".dict")
+#       ref.replace(".fa", ".dict")
 #     conda:
 #       "env/picard.yaml"
 #     shell:
@@ -290,7 +290,7 @@ rule markDuplicates:
 #     input:
 #       ref
 #     output:
-#       ref.replace(".fasta", "fasta.fai")
+#       ref.replace(".fa", "fa.fai")
 #     conda:
 #       "env/samtools.yaml"
 #     shell:
