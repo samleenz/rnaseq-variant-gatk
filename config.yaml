@@ -8,7 +8,10 @@ millsIndels: "/path/to/gatk-resources/Mills_and_1000G_gold_standard.indels.hg38.
 dbSNP: "/path/to/gatk-resources/dbsnp_146.hg38.vcf.gz"
 
 # gatk path
-gatkPath: "/home/samlee/downloads/gatk-4.0.2.1/gatk"
+gatkPath: "/path/to/the/git/gatk-4.0.2.1/gatk"
+
+# output directory name
+outDir: "out"
 
 # additional arguments to HaplotypeCaller
 ## if you have none to add just make it a blank string

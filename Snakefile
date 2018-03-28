@@ -16,12 +16,14 @@ dbSNP       = config["dbSNP"]
 hcArgs      = config["hcArgs"]
 ## Path to GATK executable
 gatk        = config["gatkPath"]
+## output directory name
+outDir      = config["outDir"]
 
 # List of "{sample}.g.vcf.gz"
 # used for rule "combineGVCFs"
 gvcfLst = expand(
     os.path.join(
-      "out",
+      outDir,
       "haploCaller",
       "{sample}",
       "{sample}.g.vcf.gz" 
@@ -36,7 +38,7 @@ gvcfLst = expand(
 rule all:
     input:
       os.path.join(
-        "out",
+        outDir,
         "haplocaller",
         "all_samples.genotyped.filtered.vcf.gz"
         )   
@@ -45,13 +47,13 @@ rule all:
 rule filterVCF:
     input:
       os.path.join(
-          "out",
+          outDir,
           "haplocaller",
           "all_samples.genotyped.vcf.gz"
       )
     output:
       os.path.join(
-          "out",
+          outDir,
           "haplocaller",
           "all_samples.genotyped.filtered.vcf.gz"
       )
@@ -70,13 +72,13 @@ rule filterVCF:
 rule genotypeGVCFs:
     input:
       os.path.join(
-          "out",
+          outDir,
           "haplocaller",
           "all_samples.g.vcf.gz"
       )
     output:
       os.path.join(
-          "out",
+          outDir,
           "haplocaller",
           "all_samples.genotyped.vcf.gz"
       )
@@ -96,7 +98,7 @@ rule combineGVCFs:
       gvcfLst
     output:
       temp(os.path.join(
-          "out",
+          outDir,
           "haplocaller",
           "all_samples.g.vcf.gz"
       ))
@@ -115,14 +117,14 @@ rule combineGVCFs:
 rule haplotypeCaller:
     input:
       bam = os.path.join(
-          "out",
+          outDir,
           "bam",
           "{sample}",
           "{sample}_Aligned.sortedByCoord.dupMarked.split.bsqr.out.bam"
           )
     output:
       temp(os.path.join(
-          "out",
+          outDir,
           "haploCaller",
           "{sample}",
           "{sample}.g.vcf.gz"
@@ -144,7 +146,7 @@ rule haplotypeCaller:
 rule printBsqr:
     input:
       bam = os.path.join(
-          "out", 
+          outDir, 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.split.out.bam"
@@ -152,7 +154,7 @@ rule printBsqr:
       table = "out/bsqr/{sample}_recal.table"
     output:
       temp(os.path.join(
-        "out",
+        outDir,
         "bam",
         "{sample}",
         "{sample}_Aligned.sortedByCoord.dupMarked.split.bsqr.out.bam"
@@ -171,14 +173,14 @@ rule printBsqr:
 rule bsqr:
     input:
       os.path.join(
-          "out", 
+          outDir, 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.split.out.bam"
           )
     output:
       os.path.join(
-        "out",
+        outDir,
         "bsqr",
         "{sample}_recal.table"
         )
@@ -201,14 +203,14 @@ rule bsqr:
 rule splitNcigar:
     input:
       bam = os.path.join(
-          "out", 
+          outDir, 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.out.bam"
           )
     output:
       temp(os.path.join(
-          "out", 
+          outDir, 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.split.out.bam"
@@ -229,27 +231,27 @@ rule splitNcigar:
 rule markDuplicates:
     input:
       bam = os.path.join(
-          "out", 
+          outDir, 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.out.bam"
           ),
       bai = os.path.join(
-          "out", 
+          outDir, 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.out.bam.bai"
           )
     output:
       temp(os.path.join(
-          "out", 
+          outDir, 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.out.bam"
           ))
     params:
       metrics = os.path.join(
-          "out",
+          outDir,
           "picard-tools-marked-dup-metrics.txt"
           )
     conda:
@@ -267,14 +269,14 @@ rule markDuplicates:
 rule indexReads:
     input:
       os.path.join(
-          "out", 
+          outDir, 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.out.bam"
           )
     output:
       os.path.join(
-          "out", 
+          outDir, 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.out.bam.bai"
@@ -295,13 +297,16 @@ rule alignReads:
       fq2 = "{sample}_2_trimmed.fastq.gz"
     output:
       os.path.join(
-          "out", 
+          outDir, 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.out.bam"
           )
     params:
-      prefix  = "star/{sample}/{sample}_",
+      prefix  = os.path.join(
+          outDir,
+          "star/{sample}/{sample}_"
+          ),
       starRef = star_ref,
       rg = "ID:{sample} SM:{sample} PL:Illumina LB:PairedEnd"
     conda:
