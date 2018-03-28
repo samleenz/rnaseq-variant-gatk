@@ -73,7 +73,7 @@ rule filterVCF:
       )
     shell:
       """
-      {gatk} -T  VariantFiltration -R {params.ref} -V {input} \
+      {gatk} -Xmx32G -T  VariantFiltration -R {params.ref} -V {input} \
         -window 35 -cluster 3 -filterName FS -filter "FS > 30.0" \
         -filterName QD -filter "QD < 2.0" -o {output} 2> {log}
       """
@@ -102,7 +102,7 @@ rule genotypeGVCFs:
       )
     shell:
       """
-      {gatk} -T  GenotypeGVCFs -R {params.ref} \
+      {gatk} -Xmx32G -T  GenotypeGVCFs -R {params.ref} \
         --variant {input} -o {output} 2> {log}
       """
 
@@ -127,7 +127,7 @@ rule combineGVCFs:
       )
     shell:
       """
-      {gatk} -T  CombineGVCFs -R {params.ref} \
+      {gatk} -Xmx32G -T  CombineGVCFs -R {params.ref} \
         --variant {params.lst} -o {output} 2> {log}
       """
 
@@ -158,7 +158,7 @@ rule haplotypeCaller:
       )
     shell:
       """
-      {gatk} -T  HaplotypeCaller -R {params.ref} -I {input.bam} \
+      {gatk} -Xmx8G -T  HaplotypeCaller -R {params.ref} -I {input.bam} \
       -dontUseSoftClippedBases -stand_call_conf 20.0 \
       --output-mode EMIT_ALL_CONFIDENT_SITES -stand_emit_conf 20.0 \
       -ERC GVCF {params.hcArgs} -o {output} 2> {log}
@@ -194,7 +194,7 @@ rule printBsqr:
       )
     shell:
       """
-      {gatk} -T  PrintReads -R {params.ref} -I {input.bam} \
+      {gatk} -Xmx8G -T  PrintReads -R {params.ref} -I {input.bam} \
        -nct 50 -BQSR {input.table} -o {output} 2> {log}
       """
 
@@ -226,7 +226,7 @@ rule bsqr:
       )
     shell:
       """
-      {gatk} -T  BaseRecalibrator -I {input} -R {params.ref} \
+      {gatk} -Xmx8G -T  BaseRecalibrator -I {input} -R {params.ref} \
       -knownSites {params.KGsnps} -knownSites {params.millsIndels} \
       -knownSites {params.dbSNP} -o {output} 2> {log}
       """
@@ -260,7 +260,7 @@ rule splitNcigar:
       )
     shell:
       """
-      {gatk} -Xmx4G -T  SplitNCigarReads -R {params.ref} \
+      {gatk} -Xmx8G -T  SplitNCigarReads -R {params.ref} \
       -I {input.bam}  -o {output} -rf ReassignOneMappingQuality -RMQF 255 \
       -RMQT 60 -U ALLOW_N_CIGAR_READS 2> {log}
       """
