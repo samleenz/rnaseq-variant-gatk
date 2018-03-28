@@ -136,8 +136,8 @@ rule haplotypeCaller:
       """
       {gatk} -T HaplotypeCaller -R {params.ref} -I {input.bam} \
       -dontUseSoftClippedBases -stand_call_conf 20.0 \
-      -stand_emit_conf 20.0 -ERC GVCF \
-      {params.hcArgs} -o {output} 2> {log}
+      --output-mode EMIT_ALL_CONFIDENT_SITES -stand_emit_conf 20.0 \
+      -ERC GVCF {params.hcArgs} -o {output} 2> {log}
       """
 
 
@@ -303,7 +303,7 @@ rule alignReads:
     params:
       prefix  = "star/{sample}/{sample}_",
       starRef = star_ref,
-      rg = "ID:{sample} SM:{sample}"
+      rg = "ID:{sample} SM:{sample} PL:Illumina LB:PairedEnd"
     conda:
       "env/star.yaml"
     log:
@@ -314,6 +314,6 @@ rule alignReads:
       STAR --twopassMode Basic --genomeDir {params.starRef} \
       --readFilesIn {input.fq1} {input.fq2} --readFilesCommand zcat \
       --outFileNamePrefix {params.prefix} --outSAMtype BAM SortedByCoordinate \
-      SortedByCoordinate {params.rg} --runThreadN {threads} 2> {log}
+      --outSAMattrRGline {params.rg} --runThreadN {threads} 2> {log}
       """
       
