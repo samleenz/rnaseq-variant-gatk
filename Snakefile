@@ -83,7 +83,7 @@ rule genotypeGVCFs:
     params:
       ref = ref
     log:
-      "logs/genotypeGVCF/{sample}.log"
+      "logs/haploCall/genotypeGVCFs.log"
     shell:
       """
       {gatk} -T GenotypeGVCFs -R {params.ref} \
@@ -128,7 +128,7 @@ rule haplotypeCaller:
           "{sample}.g.vcf.gz"
           ))
     params:
-      ref = ref
+      ref = ref,
       hcArgs = hcArgs
     log:
       "logs/haploCall/{sample}.log"
@@ -191,7 +191,7 @@ rule bsqr:
       "logs/bsqr/{sample}.log"
     shell:
       """
-      {gatk} -T BaseRecalibrator -I {input} -R {param.ref} \
+      {gatk} -T BaseRecalibrator -I {input} -R {params.ref} \
       -knownSites {params.KGsnps} -knownSites {params.millsIndels} \
       -knownSites {params.dbSNP} -o {output} 2> {log}
       """
@@ -291,8 +291,8 @@ rule indexReads:
 
 rule alignReads:
     input:
-      fq1 = "{sample}_1_trimmed.fastq.gz,
-      fq2 = "{sample}_2_trimmed.fastq.gz
+      fq1 = "{sample}_1_trimmed.fastq.gz",
+      fq2 = "{sample}_2_trimmed.fastq.gz"
     output:
       os.path.join(
           "out", 
