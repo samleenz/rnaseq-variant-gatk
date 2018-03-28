@@ -227,7 +227,7 @@ rule splitNcigar:
     shell:
       """
       {gatk} SplitNCigarReads -R {params.ref} -I {input.bam} \
-      -rf ReassignOneMappingQuality -RMQF 255 \
+      -O {output} -rf ReassignOneMappingQuality -RMQF 255 \
       -RMQT 60 -U ALLOW_N_CIGAR_READS 2> {log}
       """
 
