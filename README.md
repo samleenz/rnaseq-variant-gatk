@@ -1,10 +1,15 @@
 # rnaseq-variant-gatk
 Variant calling + processing pipline using GATK based in Snakemake
 
+* Use branch maser for calling with GATK 4
+* Use branch gatk37 for calling with GATK 3.7
+
+The GATK4 calling currently does not work due to an issue with how `gatk SplitNCigarReads` parses its arguments
+
 ## Usage
 
 ```
-source activate gatk # activate conda enviornment
+source activate [gatk,gatk37] # activate conda enviornment
 ```
 See [here](#anchors-in-markdown) to create the conda environment
 
@@ -52,3 +57,20 @@ conda install -c bioconda java-jdk snakemake graphviz
 ```
 
 Then update the `gatkPath` variable in `config.yaml` with the path to the `gatk` executable from the gatk downlaod.
+
+### Build process for GATK 3.7 conda environment
+
+To use the GATK 3.7 branch follow these instructions to set up the conda environment.
+
+```
+conda create -n gatk37 gatk=3.7
+source activate gatk37
+```
+
+Then download version 3.7 of GATK from `https://software.broadinstitute.org/gatk/download/archive`
+
+
+```
+gatk-register "/path/to/gatk-XX-tar.bz2"
+conda install -c bioconda java-jdk snakemake graphviz
+```
