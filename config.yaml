@@ -14,10 +14,6 @@ gatkPath: "/home/samlee/downloads/gatk-4.0.2.1/gatk"
 ## if you have none to add just make it a blank string
 hcArgs: ""
 
-# Optional VCF filtering -- pobably actually inlcude in hcArgs
-
-refVCF: ".../PGC.filtered.vcf"
-
 
 # Samples - points to forward read file.s
 
