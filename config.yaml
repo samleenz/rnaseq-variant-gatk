@@ -8,19 +8,21 @@ millsIndels: "/path/to/gatk-resources/Mills_and_1000G_gold_standard.indels.hg38.
 dbSNP: "/path/to/gatk-resources/dbsnp_146.hg38.vcf.gz"
 
 # gatk path
+## just use "gatk" if using GATK 3.7
 gatkPath: "/path/to/the/git/gatk-4.0.2.1/gatk"
 
 # output directory name
+## must contain 'out' at one point
 outDir: "out"
-# fastq directory name, default is current dir
-outDir: "."
+# fastq directory name, default is "."
+fastqDir: "."
 
 # additional arguments to HaplotypeCaller
 ## if you have none to add just make it a blank string
 hcArgs: ""
 
 
-# Samples - points to forward read file.s
+# Samples - points to forward read files
 
 samples:
     SRR5938419: "SRR5938419_1_trimmed.fastq.gz"
