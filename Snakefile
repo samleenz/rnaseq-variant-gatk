@@ -273,7 +273,7 @@ rule markDuplicates:
       """
 
 
-rule indexRef:
+rule makeRefDict:
     input:
       ref
     output:
