@@ -95,11 +95,11 @@ rule combineGVCFs:
     input:
       gvcfLst
     output:
-      os.path.join(
+      temp(os.path.join(
           "out",
           "haplocaller",
           "all_samples.g.vcf.gz"
-      )
+      ))
     params:
       lst = lambda wildcards : " --variant ".join(gvcfLst),
       ref = ref
@@ -121,12 +121,12 @@ rule haplotypeCaller:
           "{sample}_Aligned.sortedByCoord.dupMarked.split.bsqr.out.bam"
           )
     output:
-      os.path.join(
+      temp(os.path.join(
           "out",
           "haploCaller",
           "{sample}",
           "{sample}.g.vcf.gz"
-          )
+          ))
     params:
       ref = ref
       hcArgs = hcArgs
@@ -151,12 +151,12 @@ rule printBsqr:
           ),
       table = "out/bsqr/{sample}_recal.table"
     output:
-    os.path.join(
+    temp(os.path.join(
         "out",
         "bam",
         "{sample}",
         "{sample}_Aligned.sortedByCoord.dupMarked.split.bsqr.out.bam"
-        )
+        ))
     params:
       ref = ref
     log:
@@ -207,12 +207,12 @@ rule splitNcigar:
           "{sample}_Aligned.sortedByCoord.dupMarked.out.bam"
           )
     output:
-      os.path.join(
+      temp(os.path.join(
           "out", 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.split.out.bam"
-          )
+          ))
     params:
       ref = ref
     log:
@@ -241,12 +241,12 @@ rule markDuplicates:
           "{sample}_Aligned.sortedByCoord.out.bam.bai"
           )
     output:
-      os.path.join(
+      temp(os.path.join(
           "out", 
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.out.bam"
-          )
+          ))
     params:
       metrics = os.path.join(
           "out",
