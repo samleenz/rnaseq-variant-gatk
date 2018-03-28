@@ -44,11 +44,11 @@ cd gatk-4.0.2.1.zip
 conda env create -n gatk4 -f gatkcondaenv.yml
 ```
 
-3. Add Snakemake and java 1.8 to the conda environment (dot is for making snakemake DAGs)
+3. Add Snakemake and java 1.8 to the conda environment (graphviz is for making snakemake DAGs)
 
 ```
 source ~/miniconda/bin/activate gatk4
-conda install -c bioconda java-jdk snakemake dot
+conda install -c bioconda java-jdk snakemake graphviz
 ```
 
 Then update the `gatkPath` variable in `config.yaml` with the path to the `gatk` executable from the gatk downlaod.
