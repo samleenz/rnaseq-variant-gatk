@@ -228,8 +228,8 @@ rule splitNcigar:
       "logs/splitNcigar/{sample}.log"
     shell:
       """
-      {gatk} -T  SplitNCigarReads -R {params.ref} -I {input.bam} \
-      -o {output} -rf ReassignOneMappingQuality -RMQF 255 \
+      {gatk} --java-options "-Xmx4G" -T  SplitNCigarReads -R {params.ref} \
+      -I {input.bam}  -o {output} -rf ReassignOneMappingQuality -RMQF 255 \
       -RMQT 60 -U ALLOW_N_CIGAR_READS 2> {log}
       """
 
