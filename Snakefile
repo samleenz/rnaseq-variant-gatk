@@ -65,7 +65,7 @@ rule filterVCF:
       "logs/haploCaller/filterVariants.log"
     shell:
       """
-      {gatk} -T VariantFiltration -R {params.ref} -V {input} \
+      {gatk} VariantFiltration -R {params.ref} -V {input} \
         -window 35 -cluster 3 -filterName FS -filter "FS > 30.0" \
         -filterName QD -filter "QD < 2.0" -o {output} 2> {log}
       """
@@ -90,7 +90,7 @@ rule genotypeGVCFs:
       "logs/haploCall/genotypeGVCFs.log"
     shell:
       """
-      {gatk} -T GenotypeGVCFs -R {params.ref} \
+      {gatk} GenotypeGVCFs -R {params.ref} \
         --variant {input} -o {output} 2> {log}
       """
 
@@ -111,7 +111,7 @@ rule combineGVCFs:
       "logs/haploCall/combineGVCF.log"
     shell:
       """
-      {gatk} -T CombineGVCFs -R {params.ref} \
+      {gatk} CombineGVCFs -R {params.ref} \
         --variant {params.lst} -o {output} 2> {log}
       """
 
@@ -138,7 +138,7 @@ rule haplotypeCaller:
       "logs/haploCall/{sample}.log"
     shell:
       """
-      {gatk} -T HaplotypeCaller -R {params.ref} -I {input.bam} \
+      {gatk} HaplotypeCaller -R {params.ref} -I {input.bam} \
       -dontUseSoftClippedBases -stand_call_conf 20.0 \
       --output-mode EMIT_ALL_CONFIDENT_SITES -stand_emit_conf 20.0 \
       -ERC GVCF {params.hcArgs} -o {output} 2> {log}
@@ -167,7 +167,7 @@ rule printBsqr:
       "logs/printBsqr/{sample}.log"
     shell:
       """
-      {gatk} -T PrintReads -R {params.ref} -I {input.bam} \
+      {gatk} PrintReads -R {params.ref} -I {input.bam} \
        -nct 50 -BQSR {input.table} -o {output} 2> {log}
       """
 
@@ -195,7 +195,7 @@ rule bsqr:
       "logs/bsqr/{sample}.log"
     shell:
       """
-      {gatk} -T BaseRecalibrator -I {input} -R {params.ref} \
+      {gatk} BaseRecalibrator -I {input} -R {params.ref} \
       -knownSites {params.KGsnps} -knownSites {params.millsIndels} \
       -knownSites {params.dbSNP} -o {output} 2> {log}
       """
@@ -223,7 +223,7 @@ rule splitNcigar:
       "logs/splitNcigar/{sample}.log"
     shell:
       """
-      {gatk} -T SplitNCigarReads -R {params.ref} -I {input.bam} \
+      {gatk} SplitNCigarReads -R {params.ref} -I {input.bam} \
       -rf ReassignOneMappingQuality -RMQF 255 \
       -RMQT 60 -U ALLOW_N_CIGAR_READS 2> {log}
       """
