@@ -212,7 +212,9 @@ rule splitNcigar:
           "bam", 
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.out.bam"
-          )
+          ),
+      ref.replace(".fasta", ".dict"),
+      ref.replace(".fasta", ".fasta.fai")
     output:
       temp(os.path.join(
           outDir, 
@@ -268,6 +270,32 @@ rule markDuplicates:
       picard MarkDuplicates I={input.bam} O={output} \
       M={params.metrics} CREATE_INDEX=true \
       VALIDATION_STRINGENCY=SILENT 2> {log}
+      """
+
+
+rule indexRef:
+    input:
+      ref
+    output:
+      ref.replace(".fasta", ".dict")
+    conda:
+      "env/picard.yaml"
+    shell:
+      """
+      picard CreateSequenceDictionary R={input} O={output}
+      """
+
+
+rule indexRef:
+    input:
+      ref
+    output:
+      ref.replace(".fasta", "fasta.fai")
+    conda:
+      "env/samtools.yaml"
+    shell:
+      """
+      samtools faidx {input}
       """
 
 
