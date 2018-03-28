@@ -273,30 +273,30 @@ rule markDuplicates:
       """
 
 
-rule makeRefDict:
-    input:
-      ref
-    output:
-      ref.replace(".fasta", ".dict")
-    conda:
-      "env/picard.yaml"
-    shell:
-      """
-      picard CreateSequenceDictionary R={input} O={output}
-      """
+# rule makeRefDict:
+#     input:
+#       ref
+#     output:
+#       ref.replace(".fasta", ".dict")
+#     conda:
+#       "env/picard.yaml"
+#     shell:
+#       """
+#       picard CreateSequenceDictionary R={input} O={output}
+#       """
 
 
-rule indexRef:
-    input:
-      ref
-    output:
-      ref.replace(".fasta", "fasta.fai")
-    conda:
-      "env/samtools.yaml"
-    shell:
-      """
-      samtools faidx {input}
-      """
+# rule indexRef:
+#     input:
+#       ref
+#     output:
+#       ref.replace(".fasta", "fasta.fai")
+#     conda:
+#       "env/samtools.yaml"
+#     shell:
+#       """
+#       samtools faidx {input}
+      # """
 
 
 rule indexReads:
