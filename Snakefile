@@ -213,8 +213,8 @@ rule splitNcigar:
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.out.bam"
           ),
-      ref.replace(".fasta", ".dict"),
-      ref.replace(".fasta", ".fasta.fai")
+      dct = ref.replace(".fasta", ".dict"),
+      idx = ref.replace(".fasta", ".fasta.fai")
     output:
       temp(os.path.join(
           outDir, 
