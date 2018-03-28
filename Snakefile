@@ -13,10 +13,9 @@ ref         = config["ref"]
 KGsnps      = config["KGsnps"]
 millsIndels = config["millsIndels"]
 dbSNP       = config["dbSNP"]
-hcArgs      = config ["hcArgs"]
-
-# Path to GATK executable
-gatk = "/home/samlee/downloads/gatk-4.0.2.1/gatk"
+hcArgs      = config["hcArgs"]
+## Path to GATK executable
+gatk        = config["gatkPath"]
 
 # List of "{sample}.g.vcf.gz"
 # used for rule "combineGVCFs"
