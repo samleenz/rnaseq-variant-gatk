@@ -153,7 +153,10 @@ rule printBsqr:
           "{sample}", 
           "{sample}_Aligned.sortedByCoord.dupMarked.split.out.bam"
           ),
-      table = "out/bsqr/{sample}_recal.table"
+      table = os.path.join(
+          outDir,
+          "bsqr/{sample}_recal.table"
+          )
     output:
       temp(os.path.join(
         outDir,
