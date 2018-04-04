@@ -160,7 +160,7 @@ rule haplotypeCaller:
       """
       {gatk} -Xmx8G -T  HaplotypeCaller -R {params.ref} -I {input.bam} \
       -dontUseSoftClippedBases -stand_call_conf 20.0 \
-      --output-mode EMIT_ALL_CONFIDENT_SITES -stand_emit_conf 20.0 \
+      --output_mode EMIT_ALL_CONFIDENT_SITES -stand_emit_conf 20.0 \
       -ERC GVCF {params.hcArgs} -o {output} 2> {log}
       """
 
