@@ -165,7 +165,7 @@ rule haplotypeCaller:
     shell:
       """
       {gatk} -Xmx8G -Djava.io.tmpdir=tmp -T  HaplotypeCaller -R {params.ref} -I {input.bam} \
-      -dontUseSoftClippedBases -stand_call_conf 20.0 \
+      -dontUseSoftClippedBases \
       --output_mode EMIT_ALL_CONFIDENT_SITES -stand_emit_conf 20.0 \
       -ERC GVCF {params.hcArgs} -o {output} 2> {log}
       """
