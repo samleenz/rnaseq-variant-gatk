@@ -82,8 +82,8 @@ rule filterVCF:
       {gatk} -Xmx32G -Djava.io.tmpdir=tmp -T  VariantFiltration \
         -R {params.ref} -V {input} \
         -window 35 -cluster 3 \
-        --filter-Name FS --filter "FS > 30.0" \
-        --filter-Name QD --filter "QD < 2.0" -o {output} 2> {log}
+        --filter-name FS --filter "FS > 30.0" \
+        --filter-name QD --filter "QD < 2.0" -o {output} 2> {log}
       """
 
 
