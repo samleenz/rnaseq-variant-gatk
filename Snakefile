@@ -166,7 +166,7 @@ rule haplotypeCaller:
       )
     shell:
       """
-      {gatk} -Xmx8G -Djava.io.tmpdir=tmp -T  HaplotypeCaller -R {params.ref} -I {input.bam} \
+      {gatk} -Xmx16G -Djava.io.tmpdir=tmp -T  HaplotypeCaller -R {params.ref} -I {input.bam} \
       -dontUseSoftClippedBases \
       --output_mode EMIT_ALL_CONFIDENT_SITES -stand_call_conf 20.0 \
       -ERC GVCF {params.hcArgs} -o {output} 2> {log}
@@ -202,7 +202,7 @@ rule printBsqr:
       )
     shell:
       """
-      {gatk} -Xmx8G -Djava.io.tmpdir=tmp -T  PrintReads -R {params.ref} -I {input.bam} \
+      {gatk} -Xmx16G -Djava.io.tmpdir=tmp -T  PrintReads -R {params.ref} -I {input.bam} \
        -nct 50 -BQSR {input.table} -o {output} 2> {log}
       """
 
@@ -234,7 +234,7 @@ rule bsqr:
       )
     shell:
       """
-      {gatk} -Xmx8G -Djava.io.tmpdir=tmp -T  BaseRecalibrator -I {input} -R {params.ref} \
+      {gatk} -Xmx16G -Djava.io.tmpdir=tmp -T  BaseRecalibrator -I {input} -R {params.ref} \
       -knownSites {params.KGsnps} -knownSites {params.millsIndels} \
       -knownSites {params.dbSNP} -o {output} 2> {log}
       """
@@ -268,7 +268,7 @@ rule splitNcigar:
       )
     shell:
       """
-      {gatk} -Xmx8G -Djava.io.tmpdir=tmp -T  SplitNCigarReads -R {params.ref} \
+      {gatk} -Xmx16G -Djava.io.tmpdir=tmp -T  SplitNCigarReads -R {params.ref} \
       -I {input.bam}  -o {output} -rf ReassignOneMappingQuality -RMQF 255 \
       -RMQT 60 -U ALLOW_N_CIGAR_READS 2> {log}
       """
@@ -311,7 +311,7 @@ rule markDuplicates:
       )
     shell:
       """
-      picard MarkDuplicates I={input.bam} O={output} \
+      picard -Xmx16G MarkDuplicates I={input.bam} O={output} \
       M={params.metrics} CREATE_INDEX=true \
       VALIDATION_STRINGENCY=SILENT 2> {log}
       """
