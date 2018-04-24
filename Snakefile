@@ -19,7 +19,7 @@ hcArgs      = config["hcArgs"]
 gatk        = config["gatkPath"]
 ## output directory name
 outDir      = config["outDir"]
-## fastq file directory 
+## fastq file directory
 fastqDir    = config["fastqDir"]
 
 
@@ -33,7 +33,7 @@ gvcfLst = expand(
       outDir,
       "haploCaller",
       "{sample}",
-      "{sample}.g.vcf.gz" 
+      "{sample}.g.vcf.gz"
       ),
     sample=config["samples"]
     )
@@ -53,7 +53,7 @@ rule all:
         outDir,
         "haplocaller",
         "all_samples.genotyped.filtered.vcf.gz"
-        )   
+        )
 
 
 rule filterVCF:
@@ -79,9 +79,11 @@ rule filterVCF:
       )
     shell:
       """
-      {gatk} -Xmx32G -Djava.io.tmpdir=tmp -T  VariantFiltration -R {params.ref} -V {input} \
-        -window 35 -cluster 3 -filterName FS -filter "FS > 30.0" \
-        -filterName QD -filter "QD < 2.0" -o {output} 2> {log}
+      {gatk} -Xmx32G -Djava.io.tmpdir=tmp -T  VariantFiltration \
+        -R {params.ref} -V {input} \
+        -window 35 -cluster 3 \
+        --filter-Name FS --filter "FS > 30.0" \
+        --filter-Name QD --filter "QD < 2.0" -o {output} 2> {log}
       """
 
 
@@ -174,9 +176,9 @@ rule haplotypeCaller:
 rule printBsqr:
     input:
       bam = os.path.join(
-          outDir, 
-          "bam", 
-          "{sample}", 
+          outDir,
+          "bam",
+          "{sample}",
           "{sample}_Aligned.sortedByCoord.dupMarked.split.out.bam"
           ),
       table = os.path.join(
@@ -208,9 +210,9 @@ rule printBsqr:
 rule bsqr:
     input:
       os.path.join(
-          outDir, 
-          "bam", 
-          "{sample}", 
+          outDir,
+          "bam",
+          "{sample}",
           "{sample}_Aligned.sortedByCoord.dupMarked.split.out.bam"
           )
     output:
@@ -242,18 +244,18 @@ rule bsqr:
 rule splitNcigar:
     input:
       bam = os.path.join(
-          outDir, 
-          "bam", 
-          "{sample}", 
+          outDir,
+          "bam",
+          "{sample}",
           "{sample}_Aligned.sortedByCoord.dupMarked.out.bam"
           ),
       dct = ref.replace(".fasta", ".dict"),
       idx = ref.replace(".fasta", ".fasta.fai")
     output:
       temp(os.path.join(
-          outDir, 
-          "bam", 
-          "{sample}", 
+          outDir,
+          "bam",
+          "{sample}",
           "{sample}_Aligned.sortedByCoord.dupMarked.split.out.bam"
           ))
     params:
@@ -276,22 +278,22 @@ rule splitNcigar:
 rule markDuplicates:
     input:
       bam = os.path.join(
-          outDir, 
-          "bam", 
-          "{sample}", 
+          outDir,
+          "bam",
+          "{sample}",
           "{sample}_Aligned.sortedByCoord.out.bam"
           ),
       bai = os.path.join(
-          outDir, 
-          "bam", 
-          "{sample}", 
+          outDir,
+          "bam",
+          "{sample}",
           "{sample}_Aligned.sortedByCoord.out.bam.bai"
           )
     output:
       temp(os.path.join(
-          outDir, 
-          "bam", 
-          "{sample}", 
+          outDir,
+          "bam",
+          "{sample}",
           "{sample}_Aligned.sortedByCoord.dupMarked.out.bam"
           ))
     params:
@@ -356,16 +358,16 @@ rule markDuplicates:
 rule indexReads:
     input:
       os.path.join(
-          outDir, 
-          "bam", 
-          "{sample}", 
+          outDir,
+          "bam",
+          "{sample}",
           "{sample}_Aligned.sortedByCoord.out.bam"
           )
     output:
       os.path.join(
-          outDir, 
-          "bam", 
-          "{sample}", 
+          outDir,
+          "bam",
+          "{sample}",
           "{sample}_Aligned.sortedByCoord.out.bam.bai"
           )
     conda:
@@ -394,9 +396,9 @@ rule alignReads:
           ),
     output:
       os.path.join(
-          outDir, 
-          "bam", 
-          "{sample}", 
+          outDir,
+          "bam",
+          "{sample}",
           "{sample}_Aligned.sortedByCoord.out.bam"
           )
     params:
@@ -422,4 +424,3 @@ rule alignReads:
       --outFileNamePrefix {params.prefix} --outSAMtype BAM SortedByCoordinate \
       --outSAMattrRGline {params.rg} --runThreadN {threads} 2> {log}
       """
-      
