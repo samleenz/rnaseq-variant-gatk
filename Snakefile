@@ -97,7 +97,7 @@ rule genotypeGVCFs:
     output:
       os.path.join(
           outDir,
-          "",
+          "haploCaller",
           "all_samples.genotyped.vcf.gz"
       )
     params:
